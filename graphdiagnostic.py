@@ -1,4 +1,4 @@
-from coregenes.visualization.graphdiagnostic.functional import plot_disconnected_components, plot_paths, plot_degrees, plot_homophily
+from coregenes.visualization.graphdiagnostic.functional import plot_disconnected_components, plot_paths, plot_degrees, plot_homophily, plot_metrics
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,7 +9,7 @@ import pandas as pd
 class GraphDiagnostic:
     def __init__(self, graph=None):
         self.graph = graph
-        self.details = ["components", "paths", "degrees", "homophily"]
+        self.details = ["components", "paths", "degrees", "homophily", "metrics"]
 
     def get_diagnostics(self, details="", graph=None, save=True, kwargs: dict = {}):
         """details is empty string or list of strings"""
@@ -61,6 +61,10 @@ class GraphDiagnostic:
                 funcs.append(self.check_homophily)
                 kwarg_list.append({})
                 title_list.append(detail)
+            elif detail.lower() == "metrics":
+                funcs.append(self.check_metrics)
+                kwarg_list.append({})
+                title_list.append(detail)
             else:
                 raise ValueError("No Detail '{}'. Only the following detail views are implemented: {}".format(detail, self.details))
 
@@ -79,6 +83,33 @@ class GraphDiagnostic:
             plt.tight_layout()
 
         return fig, ax
+
+    def check_metrics(self, graph=None, symmetrize=True, metrics=None, fig=None, ax=None):
+
+        if metrics is None:
+            metrics = self.get_metrics(graph, symmetrize)
+
+        fig, ax = plot_metrics(metrics, fig=fig, ax=ax)
+        return fig, ax
+
+    def get_metrics(self, graph, symmetrize=True):
+        if graph is None:
+            assert self.graph is not None
+            graph = self.graph
+
+        metrics = {}
+        ppm, _ = self.positive_paths_matrix(graph, symmetrize)
+        distance = ppm.flatten()
+        nnz_distance = distance[distance != 0]
+        avg_distance = nnz_distance.mean()
+        sd_distance = nnz_distance.std()
+        metrics.update({"Average Positive Distance": (avg_distance, sd_distance)})
+        G = graph.to_undirected()
+        G0 = G.subgraph(max(nx.connected_components(G), key=len))
+        avg_distance = nx.average_shortest_path_length(G0)
+        metrics.update({"Average Overall Distance": (avg_distance,)})
+
+        return metrics
 
     def check_components(self, graph=None, components=None, isolates=None, fig=None, ax=None):
 

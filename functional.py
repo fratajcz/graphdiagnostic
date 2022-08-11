@@ -9,6 +9,35 @@ from matplotlib import cm
 from numpy import linspace
 
 
+def plot_metrics(metrics, ax=None, fig=None):
+    if ax is None:
+        fig, ax = plt.subplots(1, 1)
+
+    expand_to = 45
+
+    cell_text = []
+    for key, value in metrics.items():
+        if len(value) == 2:
+            text = "{:.1f} +- {:.1f}".format(value[0], value[1])
+        else:
+            text = "{:.1f}".format(value[0])
+        missing_len = expand_to - (len(key) + len(text))
+        filler_string = " " * missing_len
+        text = "{}:{}{}".format(key, filler_string, text)
+        cell_text.append([text])
+
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(False)
+    ax.axis("off")
+
+    the_table = plt.table(cellText=cell_text,
+                          loc='center')
+
+    #plt.subplots_adjust(bottom=0.9)
+    fig.tight_layout()
+    return fig, ax
+    
+
 def plot_homophily(confusion, ax=None, fig=None):
     if ax is None:
         fig, ax = plt.subplots(1, 1)
