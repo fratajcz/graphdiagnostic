@@ -1,4 +1,4 @@
-from coregenes.visualization.graphdiagnostic.functional import plot_disconnected_components, plot_paths, plot_degrees, plot_homophily, plot_metrics
+from speos.visualization.graphdiagnostic.functional import plot_disconnected_components, plot_paths, plot_degrees, plot_homophily, plot_metrics
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -93,6 +93,7 @@ class GraphDiagnostic:
         return fig, ax
 
     def get_metrics(self, graph, symmetrize=True):
+        import igraph as ig
         if graph is None:
             assert self.graph is not None
             graph = self.graph
@@ -103,11 +104,16 @@ class GraphDiagnostic:
         nnz_distance = distance[distance != 0]
         avg_distance = nnz_distance.mean()
         sd_distance = nnz_distance.std()
-        metrics.update({"Average Positive Distance": (avg_distance, sd_distance)})
+        metrics.update({"Average Positive Shortest Path Length": (avg_distance, sd_distance)})
         G = graph.to_undirected()
         G0 = G.subgraph(max(nx.connected_components(G), key=len))
-        avg_distance = nx.average_shortest_path_length(G0)
-        metrics.update({"Average Overall Distance": (avg_distance,)})
+        G = ig.Graph.from_networkx(G0)
+        diameter = G.diameter()
+        shortest_path_lengths = G.shortest_paths()
+        average_shortest_path_length = np.mean(shortest_path_lengths[shortest_path_lengths != 0])
+        sd_shortest_path_length = np.std(shortest_path_lengths[shortest_path_lengths != 0])
+        metrics.update({"Average Shortest Path Length": (average_shortest_path_length, sd_shortest_path_length)})
+        metrics.update({"Diameter": (diameter,)})
 
         return metrics
 
