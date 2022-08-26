@@ -37,4 +37,4 @@ plt.savefig("scalefree_diagnostics.png")
 
 This creates the following image:
 
-![](scalefree_diagnostics.png?raw=true)
+![](img/scalefree_diagnostics.png?raw=true)
