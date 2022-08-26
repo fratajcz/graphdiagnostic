@@ -1,6 +1,24 @@
 # graphdiagnostic
 Diagnostic plotting to help you figure out what is going on in your graph
 
+
+# Getting Started
+
+Graphdiagnostic has a short list of requirements which can be found in `requirements.txt`. 
+To get started, just type the following lines (assuming you have conda installes):
+
+```
+git clone https://github.com/fratajcz/graphdiagnostic.git
+cd graphdiagnostic
+conda create -n gd python=3.7
+conda activate gd
+python3 -m pip install -r requirements.txt
+```
+
+And you are good to go :)
+
+# Minimal Working Example
+
 The diagnostic takes as input a NetworkX graph object.
 Each node has to have a property "y" which has to be set to 0 or 1 for each node.
 
