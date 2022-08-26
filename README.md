@@ -61,7 +61,7 @@ This creates the following image in the subfolder `img`:
 
 To plot only one detail at a time, just specify it when you call `diagnostic.get_diagnostics(<detail>)`:
 
-## plot only components
+## Plot only Components
 ```
 fig, ax = diagnostic.get_diagnostics("components")
 
@@ -74,6 +74,12 @@ plt.savefig("img/scalefree_components.png")
 This creates the following image in the subfolder `img`:
 
 ![](img/scalefree_components.png?raw=true)
+
+### Explanation
+
+This plot shows you two things:
+1. Is you graph split up into multiple disconnected components and are there isolated nodes (left bar)
+2. How are your labels distributed among those components.
 
 
 ## plot only paths
@@ -89,6 +95,14 @@ plt.savefig("img/scalefree_paths.png")
 This creates the following image in the subfolder `img`:
 
 ![](img/scalefree_paths.png?raw=true)
+
+### Explanation
+
+This plot shows you how far your positive labeled nodes are away from each other.
+The black bar to the very right shows the Unreachable (Unr.) positive nodes. These nodes show up in the "Isolated" part in the previous plot.
+The other bars are sorted by their path length, meaning in this case, the first non-black bar means that this number of positives has at least one other positive in their 1-hop neighborhood. The bar to the right means the same for the 2-hop neighborhood and so on. 
+The height of the bars means the number of positive center nodes while the color codes the number of positive nodes in the respective n-hop neighborhood of the center node.
+
 
 ## plot only degrees
 ```
