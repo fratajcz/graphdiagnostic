@@ -304,7 +304,7 @@ def plot_disconnected_components(components, isolates, fig=None, ax=None):
     ax.set_xticklabels(["Components", "Pos/Unk"])
 
     for bar in ax.patches:
-        y_offset = -500
+        y_offset = - (0.05 * total_nodes)
         try:
             if bar.get_height() > np.abs(y_offset):
                 ax.text(
