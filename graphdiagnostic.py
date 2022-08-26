@@ -1,4 +1,4 @@
-from speos.visualization.graphdiagnostic.functional import plot_disconnected_components, plot_paths, plot_degrees, plot_homophily, plot_metrics
+from functional import plot_disconnected_components, plot_paths, plot_degrees, plot_homophily, plot_metrics
 
 import matplotlib.pyplot as plt
 import numpy as np
