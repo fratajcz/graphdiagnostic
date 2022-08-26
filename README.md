@@ -4,7 +4,7 @@ Diagnostic plotting to help you figure out what is going on in your graph
 The diagnostic takes as input a NetworkX graph object.
 Each node has to have a property "y" which has to be set to 0 or 1 for each node.
 
-You can plot your diagnostics as follows: (see mve.py)
+You can plot your diagnostics as follows: (see mwe.py)
 
 ```
 from graphdiagnostic import GraphDiagnostic
