@@ -143,6 +143,8 @@ def plot_paths(ppm, fig=None, ax=None, symmetrize=False):
     ax.set_xlim(-0.5, max_x + 0.5)
     ax.set_xticks(list(range(max_x + 1)))
 
+    ax.set_xticklabels(["Unr."] + list(range(1, max_x + 1)))
+
     super_y_offset = 0.2
     if max_x == 0 or len(neighborhood_dict.keys()) == 0:
         ax.text(0, super_y_offset, str(zeros), ha='center',
