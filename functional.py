@@ -160,6 +160,8 @@ def plot_paths(ppm, fig=None, ax=None, symmetrize=False):
 
     colors = [cm.viridis(x) for x in cm_subsection]
 
+    ax.bar(0, height=zeros, color="black")
+
     for neighborhood_size in range(1, len(neighborhood_dict.keys()) + 1):
         try:
             path_length_dict = neighborhood_dict[neighborhood_size]
@@ -175,7 +177,7 @@ def plot_paths(ppm, fig=None, ax=None, symmetrize=False):
     # put labels on bar
     for i, total in enumerate(bottom):
         if i == 0:
-            ax.text(0, super_y_offset, str(zeros), ha='center',
+            ax.text(0, zeros + super_y_offset, str(zeros), ha='center',
                     weight='bold', size=7)
         else:
             ax.text(i, total + super_y_offset, int(total), ha='center',
