@@ -1,4 +1,4 @@
-from functional import plot_disconnected_components, plot_paths, plot_degrees, plot_homophily, plot_metrics
+from .functional import plot_disconnected_components, plot_paths, plot_degrees, plot_homophily, plot_metrics
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -99,7 +99,20 @@ class GraphDiagnostic:
             graph = self.graph
 
         metrics = {}
+
         ppm, _ = self.positive_paths_matrix(graph, symmetrize)
+
+        n_positives = ppm.shape[0]
+        n_unknown = graph.number_of_nodes() - n_positives
+        components = self.get_connected_components()
+        isolated_pos = len(components[1][1])
+        isolated_unknown = len(components[1][0])    
+        n_edges = graph.number_of_edges()
+        metrics.update({"Number of Positives": (int(n_positives),)})
+        metrics.update({"Number of Unknowns": (int(n_unknown),)})
+        metrics.update({"Isolated Positives": (int(isolated_pos),)})
+        metrics.update({"Isolated Unknowns": (int(isolated_unknown),)})
+        metrics.update({"Number of Edges": (int(n_edges),)})
         distance = ppm.flatten()
         nnz_distance = distance[distance != 0]
         avg_distance = nnz_distance.mean()
@@ -113,7 +126,7 @@ class GraphDiagnostic:
         average_shortest_path_length = np.mean(shortest_path_lengths[shortest_path_lengths != 0])
         sd_shortest_path_length = np.std(shortest_path_lengths[shortest_path_lengths != 0])
         metrics.update({"Average Shortest Path Length": (average_shortest_path_length, sd_shortest_path_length)})
-        metrics.update({"Diameter": (diameter,)})
+        metrics.update({"Diameter": (int(diameter),)})
 
         return metrics
 

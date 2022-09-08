@@ -13,24 +13,41 @@ def plot_metrics(metrics, ax=None, fig=None):
     if ax is None:
         fig, ax = plt.subplots(1, 1)
 
-    expand_to = 45
+    background_grey = '#e2e3e4'
+    background_blue = '#cae9f5'
 
-    cell_text = []
+    values = [["Metric"]]
+    keys = ["Values"]
+    # cell_text = []
     for key, value in metrics.items():
         if len(value) == 2:
             text = "{:.1f} +- {:.1f}".format(value[0], value[1])
         else:
-            text = "{:.1f}".format(value[0])
-        missing_len = expand_to - (len(key) + len(text))
-        filler_string = " " * missing_len
-        text = "{}:{}{}".format(key, filler_string, text)
-        cell_text.append([text])
+            if type(value[0]) == int:
+                text = "{}".format(value[0])
+            else:
+                text = "{:.1f}".format(value[0])
+        values.append([text])
+        keys.append(key)
+    """
+    maxlen_values = len(max(values, key=len))
+    maxlen_keys = len(max(keys, key=len))
 
+    for key, value in zip(keys, values):
+        cell_text.append(["{}{}".format(key.ljust(maxlen_keys), value.rjust(maxlen_values))])
+    """
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)
     ax.axis("off")
+    
+    colors = ["white" if i % 2 != 0 else background_grey for i in range(len(values[1:]))]
+    colors = [background_blue] + colors
+    cellcolors = [[item] for item in colors]
 
-    the_table = plt.table(cellText=cell_text,
+    the_table = plt.table(cellText=values,
+                          rowLabels=keys,
+                          rowColours=colors,
+                          cellColours=cellcolors,
                           loc='center')
 
     #plt.subplots_adjust(bottom=0.9)
@@ -43,6 +60,10 @@ def plot_homophily(confusion, ax=None, fig=None):
         fig, ax = plt.subplots(1, 1)
 
     seaborn.heatmap(confusion, ax=ax, vmin=0, vmax=1, annot=True, xticklabels=True, yticklabels=True, linewidths=.5, cmap="Blues")
+    labels = ax.get_xticklabels()
+    labels = ["\n".join(label.get_text().split(" ")) for label in labels]
+    ax.set_xticklabels(labels)
+    plt.xticks(rotation=0)
 
     return fig, ax
 
@@ -79,16 +100,6 @@ def plot_degrees(degrees, ax=None, fig=None, density=False):
         ax.set_ylim(1, 1e4)
         ypos1 = 6000
         ypos2 = 4000
-
-    for name, degree in degreedict.items():
-        if name == "Unlabeled":
-            ax.text(1, ypos1, name[0] + "n:" + str(len(degree)))
-        elif name == "Positive":
-            ax.text(1, ypos2, name[0] + "n:" + str(len(degree)))
-        if name == "Unlabeled":
-            ax.text(7, ypos1, name[0] + "0:" + str(np.sum([np.asarray(degree) == 0])))
-        elif name == "Positive":
-            ax.text(7, ypos2, name[0] + "0:" + str(np.sum([np.asarray(degree) == 0])))
 
     ax.set_yscale('log')
     ax.set_xscale('log')
