@@ -62,8 +62,7 @@ def plot_homophily(confusion, ax=None, fig=None):
     seaborn.heatmap(confusion, ax=ax, vmin=0, vmax=1, annot=True, xticklabels=True, yticklabels=True, linewidths=.5, cmap="Blues")
     labels = ax.get_xticklabels()
     labels = ["\n".join(label.get_text().split(" ")) for label in labels]
-    ax.set_xticklabels(labels)
-    plt.xticks(rotation=0)
+    ax.set_xticklabels(labels, rotation=0)
 
     return fig, ax
 
@@ -86,8 +85,8 @@ def plot_degrees(degrees, ax=None, fig=None, density=False):
             y = [y_value / y_sum for y_value in y]
         x = degree_counter.keys()
         ax.scatter(x, y, alpha=0.5, label=name)
-        mean_x = np.mean(np.asarray(degree)[np.asarray(degree) > 0])
-        ax.axline((mean_x, 1), (mean_x, 0), label="Mean " + name[0] + ".", color="blue" if name == "Unlabeled" else "orange")
+        #mean_x = np.mean(np.asarray(degree)[np.asarray(degree) > 0])
+        #ax.axline((mean_x, 1), (mean_x, 0), label="Mean " + name[0] + ".", color="blue" if name == "Unlabeled" else "orange")
         degreedict.update({name: degree})
 
     if density:
@@ -180,7 +179,7 @@ def plot_paths(ppm, fig=None, ax=None, symmetrize=False):
             continue
 
         ax.bar(path_length_dict.keys(), height=path_length_dict.values(), bottom=bottom[np.asarray(list(path_length_dict.keys()))],
-               label=neighborhood_size, color=colors[neighborhood_size - 1])
+               label=neighborhood_size, color=colors[neighborhood_size - 1], linewidth=0, rasterized=True)
 
         for i, value in path_length_dict.items():
             bottom[i] += value

@@ -1,4 +1,4 @@
-from functional import plot_disconnected_components, plot_paths, plot_degrees, plot_homophily, plot_metrics
+from . import functional as f
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,7 +11,7 @@ class GraphDiagnostic:
         self.graph = graph
         self.details = ["components", "paths", "degrees", "homophily", "metrics"]
 
-    def get_diagnostics(self, details="", graph=None, save=True, kwargs: dict = {}):
+    def get_diagnostics(self, details="", graph=None, save=True, figsize=None, kwargs: dict = {}):
         """details is empty string or list of strings"""
 
         # TODO: sort out and use kwargs!
@@ -71,7 +71,7 @@ class GraphDiagnostic:
             if detail in kwargs.keys():
                 kwarg_list[-1].update(kwargs[detail])
 
-        fig, axes = plt.subplots(1, len(funcs), figsize=(5 * len(funcs), 5.5), sharex=False, sharey=False)
+        fig, axes = plt.subplots(1, len(funcs), figsize=(5 * len(funcs), 5.5) if figsize is None else figsize, sharex=False, sharey=False)
 
         for i, detail_func in enumerate(funcs):
             try:
@@ -89,7 +89,7 @@ class GraphDiagnostic:
         if metrics is None:
             metrics = self.get_metrics(graph, symmetrize)
 
-        fig, ax = plot_metrics(metrics, fig=fig, ax=ax)
+        fig, ax = f.plot_metrics(metrics, fig=fig, ax=ax)
         return fig, ax
 
     def get_metrics(self, graph, symmetrize=True):
@@ -109,15 +109,15 @@ class GraphDiagnostic:
         isolated_unknown = len(components[1][0])    
         n_edges = graph.number_of_edges()
         metrics.update({"Number of Positives": (int(n_positives),)})
-        metrics.update({"Number of Unknowns": (int(n_unknown),)})
+        metrics.update({"Number of Unlabeled": (int(n_unknown),)})
         metrics.update({"Isolated Positives": (int(isolated_pos),)})
-        metrics.update({"Isolated Unknowns": (int(isolated_unknown),)})
+        metrics.update({"Isolated Unlabeled": (int(isolated_unknown),)})
         metrics.update({"Number of Edges": (int(n_edges),)})
         distance = ppm.flatten()
         nnz_distance = distance[distance != 0]
         avg_distance = nnz_distance.mean()
         sd_distance = nnz_distance.std()
-        metrics.update({"Average Positive Shortest Path Length": (avg_distance, sd_distance)})
+        metrics.update({"Av. Pos. Shortest Path L.": (avg_distance, sd_distance)})
         G = graph.to_undirected()
         G0 = G.subgraph(max(nx.connected_components(G), key=len))
         G = ig.Graph.from_networkx(G0)
@@ -125,7 +125,7 @@ class GraphDiagnostic:
         shortest_path_lengths = G.shortest_paths()
         average_shortest_path_length = np.mean(shortest_path_lengths[shortest_path_lengths != 0])
         sd_shortest_path_length = np.std(shortest_path_lengths[shortest_path_lengths != 0])
-        metrics.update({"Average Shortest Path Length": (average_shortest_path_length, sd_shortest_path_length)})
+        metrics.update({"Av. Shortest Path L.": (average_shortest_path_length, sd_shortest_path_length)})
         metrics.update({"Diameter": (int(diameter),)})
 
         return metrics
@@ -134,7 +134,7 @@ class GraphDiagnostic:
 
         if components is None or isolates is None:
             components, isolates = self.get_connected_components(graph)
-        fig, ax = plot_disconnected_components(components, isolates, fig=fig, ax=ax)
+        fig, ax = f.plot_disconnected_components(components, isolates, fig=fig, ax=ax)
         return fig, ax
 
     def get_connected_components(self, graph=None) -> tuple:
@@ -159,7 +159,8 @@ class GraphDiagnostic:
     def check_homophily(self, graph=None, fig=None, ax=None, confusion=None):
 
         confusion = self.get_homophily(graph) if confusion is None else confusion
-        fig, ax = plot_homophily(confusion, fig=fig, ax=ax)
+        print(confusion)
+        fig, ax = f.plot_homophily(confusion, fig=fig, ax=ax)
         return fig, ax
 
     def get_homophily(self, graph) -> pd.DataFrame:
@@ -175,8 +176,8 @@ class GraphDiagnostic:
             for indices, name in zip([pos_idx, neg_idx], ["Positive", "Unlabeled"]):
                 num_pos = [np.sum([graph.nodes[n]["y"] == label for n in graph.neighbors(
                     index)]) for index in indices]
-                total_n = [len([graph.nodes[n]["y"] == label for n in graph.neighbors(
-                    index)]) for index in indices]
+                total_n = [len(list(graph.neighbors(
+                    index))) for index in indices]
                 frac_pos = [n / total for n,
                             total in zip(num_pos, total_n) if total > 0]
                 frac_pos = np.mean(frac_pos)
@@ -207,7 +208,7 @@ class GraphDiagnostic:
             degrees = self.get_degrees(direction=direction) if degrees is None else degrees
         else:
             degrees = self.get_degrees() if degrees is None else degrees
-        fig, ax = plot_degrees(degrees, fig=fig, ax=ax, density=density)
+        fig, ax = f.plot_degrees(degrees, fig=fig, ax=ax, density=density)
         return fig, ax
 
     def get_degrees(self, graph=None, direction="both") -> dict:
@@ -264,7 +265,7 @@ class GraphDiagnostic:
     def check_paths(self, graph=None, fig=None, ax=None, symmetrize=False, ppm=None):
         if ppm is None:
             ppm, _ = self.positive_paths_matrix(graph, symmetrize=symmetrize)
-        fig, ax = plot_paths(ppm, fig=fig, ax=ax, symmetrize=symmetrize)
+        fig, ax = f.plot_paths(ppm, fig=fig, ax=ax, symmetrize=symmetrize)
         return fig, ax
 
     def positive_paths_matrix(self, graph=None, symmetrize=False):
